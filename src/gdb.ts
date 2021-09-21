@@ -774,40 +774,8 @@ export class GDBDebugSession extends DebugSession {
         });
     }
 
-    protected disconnectRequest(response: DebugProtocol.DisconnectResponse, args: DebugProtocol.DisconnectArguments): void {
-        const doDisconnectProcessing = () => {
-            this.miDebugger.sendCommand('break-delete');
-            if (this.attached) {
-                this.attached = false;
-                this.miDebugger.detach();
-            } else {
-                this.miDebugger.stop();
-            }
-            if (this.commandServer) {
-                this.commandServer.close();
-                this.commandServer = undefined;
-            }
-            setTimeout(() => {      // Give gdb a chance to disconnect and exit normally
-                try {
-                    this.disableSendStoppedEvents = false;
-                    this.server.exit();
-                }
-                catch (e) {}
-                finally {
-                    this.sendResponse(response);
-                }
-            }, 50);
-        };
-
-        this.disableSendStoppedEvents = true;
-        if (this.miDebugger) {
-            if (this.attached && !this.stopped) {
-                this.miDebugger.once('generic-stopped', doDisconnectProcessing);
-                this.miDebugger.sendCommand('exec-interrupt');
-            } else {
-                doDisconnectProcessing();
-            }
-        }
+    protected disconnectRequest(): void {
+        // NO-OP
     }
 
     //
